@@ -6,6 +6,7 @@
 
 using HarmonyLib;
 using Oxide.Core;
+using Oxide.Core.Plugins;
 
 namespace Oxide.Plugins
 {
@@ -16,7 +17,6 @@ namespace Oxide.Plugins
         #region Fields
 
         private static UndyingCandles _plugin;
-        private Harmony _harmony;
 
         #endregion Fields
 
@@ -25,13 +25,10 @@ namespace Oxide.Plugins
         private void Init()
         {
             _plugin = this;
-            _harmony = new Harmony(Name + "PATCH");
-            _harmony.PatchAll();
         }
 
         private void Unload()
         {
-            _harmony.UnpatchAll(Name + "PATCH");
             _plugin = null;
         }
 
@@ -47,16 +44,14 @@ namespace Oxide.Plugins
 
         #region Harmony Patches
 
+        [AutoPatch]
         [HarmonyPatch(typeof(Candle), "UpdateInvokes")]
         public static class Candle_UpdateInvokes_Patch
         {
             public static bool Prefix(Candle __instance)
             {
                 if (Interface.CallHook("OnCandleUpdateInvokes", __instance) != null)
-                {
-                    // Return a non-null value to block the original method, null to allow it.
                     return false;
-                }
 
                 return true;
             }
