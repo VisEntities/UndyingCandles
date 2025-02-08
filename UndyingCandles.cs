@@ -10,7 +10,7 @@ using Oxide.Core.Plugins;
 
 namespace Oxide.Plugins
 {
-    [Info("Undying Candles", "VisEntities", "1.0.0")]
+    [Info("Undying Candles", "VisEntities", "1.0.1")]
     [Description("Candles never burn out, providing constant light.")]
     public class UndyingCandles : RustPlugin
     {
