@@ -7,10 +7,11 @@
 using HarmonyLib;
 using Oxide.Core;
 using Oxide.Core.Plugins;
+using System.Collections.Generic;
 
 namespace Oxide.Plugins
 {
-    [Info("Undying Candles", "VisEntities", "1.0.1")]
+    [Info("Undying Candles", "VisEntities", "1.1.0")]
     [Description("Candles never burn out, providing constant light.")]
     public class UndyingCandles : RustPlugin
     {
@@ -25,6 +26,7 @@ namespace Oxide.Plugins
         private void Init()
         {
             _plugin = this;
+            PermissionUtil.RegisterPermissions();
         }
 
         private void Unload()
@@ -37,10 +39,50 @@ namespace Oxide.Plugins
             if (candle == null)
                 return null;
 
-            return true;
+            BasePlayer ownerPlayer = FindPlayerById(candle.OwnerID);
+            if (ownerPlayer != null && PermissionUtil.HasPermission(ownerPlayer, PermissionUtil.USE))
+                return true;
+
+            return null;
         }
 
         #endregion Oxide Hooks
+
+        #region Permissions
+
+        private static class PermissionUtil
+        {
+            public const string USE = "undyingcandles.use";
+
+            private static readonly List<string> _permissions = new List<string>
+            {
+                USE,
+            };
+
+            public static void RegisterPermissions()
+            {
+                foreach (var permission in _permissions)
+                {
+                    _plugin.permission.RegisterPermission(permission, _plugin);
+                }
+            }
+
+            public static bool HasPermission(BasePlayer player, string permissionName)
+            {
+                return _plugin.permission.UserHasPermission(player.UserIDString, permissionName);
+            }
+        }
+
+        #endregion Permissions
+
+        #region Helper Functions
+
+        public static BasePlayer FindPlayerById(ulong playerId)
+        {
+            return RelationshipManager.FindByID(playerId);
+        }
+
+        #endregion Helper Functions
 
         #region Harmony Patches
 
